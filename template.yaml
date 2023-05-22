@@ -17,12 +17,35 @@ Globals:
   Api:
     Cors:
       AllowMethods: "'GET,POST,OPTIONS'"
-      AllowHeaders: "'content-type'"
-      AllowOrigin: "'*'"
+      AllowHeaders: "'content-type,authorization'"
+      AllowOrigin: "'http://localhost:5173'"
+      AllowCredentials: true
+
+Parameters:
+  CognitoUserPoolName:
+    Type: String
+    Description: Cognito User Pool Name
+    Default: MyCognitoUserPool
+  CognitoUserPoolClientName:
+    Type: String
+    Description: Cognito User Pool Client Name
+    Default: MyCognitoUserPoolClient
 
 # Resources declares the AWS resources that you want to include in the stack
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
 Resources:
+  MyApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Auth:
+        DefaultAuthorizer: MyCognitoAuthorizer
+        # Don't ask for authorization on OPTIONS preflight
+        AddDefaultAuthorizerToCorsPreflight: false
+        Authorizers:
+          MyCognitoAuthorizer:
+            UserPoolArn: !GetAtt MyCognitoUserPool.Arn
+
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 
@@ -49,6 +72,7 @@ Resources:
         Api:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApi
             Path: /
             Method: GET
 
@@ -78,6 +102,7 @@ Resources:
         Api:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApi
             Path: /{id}
             Method: GET
 
@@ -107,6 +132,7 @@ Resources:
         Api:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApi
             Path: /
             Method: POST
 
@@ -135,7 +161,39 @@ Resources:
         ReadCapacityUnits: 2
         WriteCapacityUnits: 2
 
+  # Cognito User Pool
+  MyCognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Ref CognitoUserPoolName
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+      UsernameAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: false
+      MfaConfiguration: "OFF"
+
+  # Cognito User Pool Client
+  MyCognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref MyCognitoUserPool
+      ClientName: !Ref CognitoUserPoolClientName
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        # Keep defaults
+        # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-cognito-userpoolclient.html
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_CUSTOM_AUTH
+        # Add https://stackoverflow.com/questions/49063292/how-to-generate-access-token-for-an-aws-cognito-user?rq=3
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH
+
 Outputs:
   WebEndpoint:
     Description: 'API Gateway endpoint URL for Prod stage'
-    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/'
+    Value: !Sub 'https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/'

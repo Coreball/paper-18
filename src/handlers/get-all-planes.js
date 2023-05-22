@@ -1,5 +1,6 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, ScanCommand } from '@aws-sdk/lib-dynamodb'
+import { headers } from './constants.js'
 
 // Create clients and set shared const values outside of the handler.
 
@@ -33,11 +34,7 @@ export const getAllPlanesHandler = async (event) => {
 
   const response = {
     statusCode: 200,
-    headers: {
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Allow-Origin': '*', // Allow from anywhere
-      'Access-Control-Allow-Methods': 'GET', // Allow only GET request
-    },
+    headers: headers,
     body: JSON.stringify(items),
   }
 

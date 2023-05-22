@@ -5,6 +5,7 @@ import {
   PutCommand,
 } from '@aws-sdk/lib-dynamodb'
 import { v4 as uuidv4 } from 'uuid'
+import { headers } from './constants.js'
 
 // Create clients and set shared const values outside of the handler.
 
@@ -41,11 +42,7 @@ export const launchPlaneHandler = async (event) => {
 
   let response = {
     statusCode: 200,
-    headers: {
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Allow-Origin': '*', // Allow from anywhere
-      'Access-Control-Allow-Methods': 'POST', // Allow only POST request
-    },
+    headers: headers,
   }
 
   // If ID supplied, update an existing plane

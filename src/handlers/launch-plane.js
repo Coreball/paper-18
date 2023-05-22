@@ -17,9 +17,7 @@ const tableName = process.env.PLANE_TABLE
 
 export const launchPlaneHandler = async (event) => {
   if (event.httpMethod !== 'POST') {
-    throw new Error(
-      `Only accepts POST method, you tried: ${event.httpMethod} method.`
-    )
+    throw new Error(`Only accepts POST method, you tried: ${event.httpMethod}`)
   }
   // All log statements are written to CloudWatch
   console.info('Received:', event)

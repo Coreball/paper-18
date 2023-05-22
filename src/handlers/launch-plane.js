@@ -39,6 +39,15 @@ export const launchPlaneHandler = async (event) => {
     },
   }
 
+  let response = {
+    statusCode: 200,
+    headers: {
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Origin': '*', // Allow from anywhere
+      'Access-Control-Allow-Methods': 'POST', // Allow only POST request
+    },
+  }
+
   // If ID supplied, update an existing plane
   if (id) {
     console.info('Updating plane id:', id)
@@ -59,11 +68,6 @@ export const launchPlaneHandler = async (event) => {
         })
       )
       console.info('Put response', put)
-      const response = { statusCode: 200 }
-      console.info(
-        `Response from: ${event.path} statusCode: ${response.statusCode}}`
-      )
-      return response
     } catch (err) {
       console.error('Error', err.stack)
     }
@@ -80,19 +84,10 @@ export const launchPlaneHandler = async (event) => {
         })
       )
       console.info('Put response', put)
-      const response = { statusCode: 200, body: JSON.stringify({ id: newId }) }
-      console.info(
-        `Response from: ${event.path} statusCode: ${response.statusCode} body: ${response.body}`
-      )
-      return response
+      response.body = JSON.stringify({ id: newId })
     } catch (err) {
       console.error('Error', err.stack)
     }
-  }
-
-  const response = {
-    statusCode: 200,
-    body: JSON.stringify(body),
   }
 
   // All log statements are written to CloudWatch

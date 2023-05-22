@@ -75,6 +75,8 @@ Resources:
             RestApiId: !Ref MyApi
             Path: /
             Method: GET
+            Auth:
+              Authorizer: 'NONE'
 
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -135,6 +137,8 @@ Resources:
             RestApiId: !Ref MyApi
             Path: /
             Method: POST
+            Auth:
+              Authorizer: 'NONE'
 
   # Simple syntax to create a DynamoDB table with a single attribute primary key, more in
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable

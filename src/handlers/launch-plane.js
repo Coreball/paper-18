@@ -25,9 +25,10 @@ export const launchPlaneHandler = async (event) => {
   console.info('tableName:', tableName)
 
   // Get data from the body of the request
-  const { id, origin, heading, timestamp, stamp } = JSON.parse(event.body)
+  const { id, user, origin, heading, timestamp, stamp } = JSON.parse(event.body)
   // Explicitly enumerate all properties to add
   const launch = {
+    user: user,
     origin: origin,
     heading: heading,
     timestamp: timestamp,
@@ -60,6 +61,7 @@ export const launchPlaneHandler = async (event) => {
           TableName: tableName,
           Item: {
             id: id,
+            owner: item.owner,
             launches: [...item.launches, launch],
           },
         })
@@ -77,7 +79,7 @@ export const launchPlaneHandler = async (event) => {
       const put = await ddbDocClient.send(
         new PutCommand({
           TableName: tableName,
-          Item: { id: newId, launches: [launch] },
+          Item: { id: newId, owner: user, launches: [launch] },
         })
       )
       console.info('Put response', put)

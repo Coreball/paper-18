@@ -18,8 +18,8 @@ Globals:
     Cors:
       AllowMethods: "'GET,POST,OPTIONS'"
       AllowHeaders: "'content-type,authorization'"
-      AllowOrigin: "'http://localhost:5173'"
-      AllowCredentials: true
+      AllowOrigin: "'*'"
+      # AllowCredentials: true
 
 Parameters:
   CognitoUserPoolName:
@@ -39,9 +39,9 @@ Resources:
     Properties:
       StageName: Prod
       Auth:
-        DefaultAuthorizer: MyCognitoAuthorizer
+        # DefaultAuthorizer: MyCognitoAuthorizer
         # Don't ask for authorization on OPTIONS preflight
-        AddDefaultAuthorizerToCorsPreflight: false
+        # AddDefaultAuthorizerToCorsPreflight: false
         Authorizers:
           MyCognitoAuthorizer:
             UserPoolArn: !GetAtt MyCognitoUserPool.Arn
@@ -75,8 +75,6 @@ Resources:
             RestApiId: !Ref MyApi
             Path: /
             Method: GET
-            Auth:
-              Authorizer: 'NONE'
 
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -137,8 +135,6 @@ Resources:
             RestApiId: !Ref MyApi
             Path: /
             Method: POST
-            Auth:
-              Authorizer: 'NONE'
 
   # Simple syntax to create a DynamoDB table with a single attribute primary key, more in
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
